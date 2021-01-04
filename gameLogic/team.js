@@ -14,5 +14,9 @@ class Team {
         this.points += points;
     }
 
+    length() {
+        return this.players.length;
+    }
+
 }
 exports.Team = Team;

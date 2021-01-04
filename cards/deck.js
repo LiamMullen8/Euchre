@@ -9,13 +9,13 @@ class Deck {
     }
 
     constructDeck() {
-        assert (this.cards.length === 0);
+        // assert (this.cards.length === 0);
         for (const suit of this.suits) {
             for (const value of this.values) {
                 this.cards.push(suit, value);
             }
         }
-        assert (this.cards.length === 24);
+        // assert (this.cards.length === 24);
     }
 
     shuffle() {
