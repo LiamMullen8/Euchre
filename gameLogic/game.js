@@ -66,7 +66,7 @@ class Game {
 
     }
 
-    start() {
+    start(message) {
         if (this.players['size'] < 4) {
             console.log('cannot start game, not enough players');
             return;
@@ -76,7 +76,8 @@ class Game {
         this.deck.shuffle();
 
         // start the game with a random dealer
-        this.currentDealerIndex = Math.floor(Math.random() * this.players.length);
+        this.currentDealerIndex = Math.floor(Math.random() * 4);
+        console.log(this.currentDealerIndex);
         switch (this.currentDealerIndex) {
             case 0:
                 this.currentDealer = this.players.get('player1');
@@ -87,7 +88,11 @@ class Game {
             case 3:
                 this.currentDealer = this.players.get('player4');
         }
-
+        message.channel.send('Euchre game starting');
+        message.channel.send(this.status());
+        message.channel.send(this.currentDealer.name + ' is the dealer. Call !deal to deal cards');
+    
+        return;
     }
 
     deal() {
@@ -98,7 +103,7 @@ class Game {
                 for (const player of this.players.keys) {
                     // give each player 3 cards
                     for ( const _ in [1, 2, 3]) {
-                        this.players[player].giveCard(this.deck.cards.pop());
+                        this.players.get(player).giveCard(this.deck.cards.pop());
                     }
                 }
             }
@@ -107,7 +112,7 @@ class Game {
                 for (const player of this.players.keys) {
                     // give each player 2 cards
                     for ( const _ in [1, 2]) {
-                        this.players[player].giveCard(this.deck.cards.pop());
+                        this.players.get(player).giveCard(this.deck.cards.pop());
                     }
                 }
             }

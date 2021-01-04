@@ -19,7 +19,16 @@ class Deck {
     }
 
     shuffle() {
-        this.cards.shuffle();
+        var currentIndex = this.cards.length, temporaryValue, randomIndex;
+
+        while (0 != currentIndex) {
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex -= 1;
+
+            temporaryValue = this.cards[currentIndex];
+            this.cards[currentIndex] = this.cards[randomIndex];
+            this.cards[randomIndex] = temporaryValue;
+        }
     }
 
     length() {
