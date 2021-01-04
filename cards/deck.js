@@ -21,5 +21,9 @@ class Deck {
     shuffle() {
         this.cards.shuffle();
     }
+
+    length() {
+        return this.cards.length;
+    }
 }
 exports.Deck = Deck;
