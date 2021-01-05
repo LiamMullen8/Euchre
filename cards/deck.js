@@ -1,4 +1,4 @@
-const cards = require('./card.js');
+const { Card }= require('./card.js');
 
 class Deck {
     constructor() {
@@ -12,7 +12,7 @@ class Deck {
         // assert (this.cards.length === 0);
         for (const suit of this.suits) {
             for (const value of this.values) {
-                this.cards.push(suit, value);
+                this.cards.push(new Card(suit, value));
             }
         }
         // assert (this.cards.length === 24);

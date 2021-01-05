@@ -5,11 +5,10 @@ const { _ } = require('http'); //used to be const { server }
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
-// console.log(commandFiles);
 
 
 const serverModule = require('./server.js');
-// console.log(serverModule);
+
 var server = new serverModule.Server();
 
 for (const file of commandFiles) {

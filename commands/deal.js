@@ -7,11 +7,13 @@ function execute(message, server, args) {
     } else if (!server.games.get(message.channel.name).hasStarted) {
         message.channel.send("Euchre game has not yet started. Start the game with !start");
         return;
-    } else if (server.games.get(message.channel.name).currentDealer != message.author.username) {
+    } else if (server.games.get(message.channel.name).currentDealer.name != message.author.username) {
+        console.log(server.games.get(message.channel.name).currentDealer.name);
         message.channel.send("It is not your turn to deal");
         return;
     }
-    server.games.get(message.channel.name).deal();
+    console.log('dealing');
+    server.games.get(message.channel.name).deal(message);
 }
 
 exports.name = name;

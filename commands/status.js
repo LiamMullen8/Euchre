@@ -6,7 +6,7 @@ function execute(message, server, args) {
         return;
     }
     message.channel.send(server.games.get(message.channel.name).status());
-    message.author.send("hi");
+    // message.author.send("hi");
 }
 
 exports.name = name;

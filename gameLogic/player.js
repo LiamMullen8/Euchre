@@ -5,12 +5,16 @@ class Player {
         this.name = name;
         this.hand = new Map();
         for (const suit of ['hearts', 'diamonds', 'clubs', 'spades']) {
-            this.hand[suit] = new Array();
+            this.hand.set(suit, new Array());
         }
     }
 
     giveCard(card) {
-        this.hand[card.suit] = card;
+        this.hand.get(card.suit).push(card);
+    }
+
+    discardLowestCard() {
+        
     }
 }
 

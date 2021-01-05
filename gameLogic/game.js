@@ -3,7 +3,9 @@ var { Player } = require('./player');
 var { Team } = require('./team');
 
 class Game {
-    constructor() {
+    constructor(server) {
+        this.server = server;
+
         this.players = new Map();
         // authors used for accessing discord functions on players
         this.authors = new Array();
@@ -17,11 +19,48 @@ class Game {
         this.players.set('player3', new Player(null));
         this.players.set('player4', new Player(null));
 
+        this.playOrder = new Array();
+
         this.deck = new Deck.Deck();
+
+        this.centerCard = null;
 
         this.hasStarted = false;
 
-        this.currentDealer = null;
+        this.currentDealer = null; // Player
+
+        this.inPickUpPhase = false;
+
+        this.currentTurnIndex = null;
+    }
+
+    pickItUp(message) {
+        if (message.author.username != this.playOrder[this.currentTurnIndex].name) {
+            message.channel.send("It is not your turn to tell the dealer to pick it up");
+            return;
+        }
+        this.currentDealer.giveCard(this.centerCard);
+    }
+
+    pickUpLoop() {
+        const dealerIndex = this.playOrder.findIndex(this.currentDealer);
+        var currIndex = this.dealerIndex;
+        // start to the left of the dealer
+        if (currIndex == 0){
+            currIndex = this.playOrder.length - 1;
+        } else {
+            currIndex = currIndex - 1;
+        }
+        const startIndex = currIndex;
+        while (true) {
+            if (currIndex == 0){
+                currIndex = this.players.length - 1;
+            } else {
+                currIndex = currIndex - 1;
+            }
+
+            if (currIndex == startIndex) {break;}
+        }
     }
 
     status() {
@@ -92,33 +131,103 @@ class Game {
         message.channel.send(this.status());
         message.channel.send(this.currentDealer.name + ' is the dealer. Call !deal to deal cards');
     
+        this.playOrder.push(this.team1.players[0]);
+        this.playOrder.push(this.team2.players[0]);
+        this.playOrder.push(this.team1.players[1]);
+        this.playOrder.push(this.team2.players[1]);
+        // game kicks off in the "pick it up" loop
+        this.inPickUpPhase = true;
+
+        const dealerIndex = this.playOrder.findIndex(this.currentDealer);
+        var currIndex = this.dealerIndex;
+        // start to the left of the dealer
+        if (currIndex == 0){
+            currIndex = this.playOrder.length - 1;
+        } else {
+            currIndex = currIndex - 1;
+        }
+        // assign the index
+        this.currentTurnIndex = currIndex;
+        return;
+    }
+    sendHand(author, hand) {
+        console.log('send hand');
+        var message = "Your hand is: ";
+        const suits = Array.from(hand.keys());
+        var i = 1;
+        for (const suit of suits) {
+            for (const card of hand.get(suit)) {
+                message += i;
+                message += ') ';
+                message += '['
+                message += this.server.suitCodes.get(suit)
+                message += ' ';
+                message += card.value;
+                message += ']'
+                if (i < 5) {
+                    message += "  |  ";
+                }
+                
+                i += 1;
+            }
+        }
+        author.send(message);
         return;
     }
 
-    deal() {
+    deal(message) {
         // default dealing behavior. Deal 3 to each player, then 2 to each player.
+        // console.log(this.players.keys());
+        console.log('deck');
+        console.log(this.deck.cards);
+        let playerKeys = Array.from(this.players.keys()).slice(1);
+
         for (const round of [1,2]) {
             if (round === 1) {
                 // deal 3 * 4 = 12 cards
-                for (const player of this.players.keys) {
+                for (const player of playerKeys) {
                     // give each player 3 cards
                     for ( const _ in [1, 2, 3]) {
+                        // console.log('fsaf');
+                        // console.log(this.players);
+                        // console.log(this.players.get(player));
+                        // console.log('cards: ' + this.deck.cards);
                         this.players.get(player).giveCard(this.deck.cards.pop());
                     }
                 }
-            }
-            if (round === 2) {
+            } else if (round === 2) {
                 // deal 2 * 4 = 8 cards
-                for (const player of this.players.keys) {
+                for (const player of playerKeys) {
                     // give each player 2 cards
+                    // console.log(this.players.get(player));
                     for ( const _ in [1, 2]) {
                         this.players.get(player).giveCard(this.deck.cards.pop());
                     }
                 }
             }
         }
+        console.log(this.players.get('player1').hand);
         // deck size should be 4 now
         // assert (this.deck.length === 4);
+        console.log(this.authors);
+        
+        for (const author of this.authors) {
+            for (const player of playerKeys) {
+                console.log(author.username);
+                console.log(player.name);
+                const currPlayer = this.players.get(player);
+                if (author.username == currPlayer.name) {
+                    console.log(author.username);
+                    this.sendHand(author, currPlayer.hand);
+                }
+            }
+        }
+        this.centerCard = this.deck.cards.pop();
+        var centerCardMessage = "Center card is: [";
+        centerCardMessage += this.server.suitCodes.get(this.centerCard.suit);
+        centerCardMessage += this.centerCard.value;
+        centerCardMessage += ']';
+        message.channel.send(centerCardMessage);
 
         return;
     }
